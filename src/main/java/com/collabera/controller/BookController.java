@@ -42,7 +42,7 @@ public class BookController {
     }
 
     @PostMapping("/save")
-    @Operation(summary = "save address")
+    @Operation(summary = "save book")
     public ResponseEntity<JSONObject> save(@Valid @RequestBody BookDTO request, BindingResult bindingResult) {
         ValidationUtils.invokeValidator(validator, request, bindingResult);
 
@@ -56,12 +56,14 @@ public class BookController {
     }
 
     @PostMapping("/borrow/{bookId}/{borrowerId}")
+    @Operation(summary = "borrow book by book id and borrower id")
     public ResponseEntity<Void> borrowBook(@PathVariable String bookId, @PathVariable String borrowerId) {
         bookService.borrowBook(bookId, borrowerId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/return/{bookId}/{borrowerId}")
+    @Operation(summary = "return book by book id and borrower id")
     public ResponseEntity<Void> returnBook(@PathVariable String bookId, @PathVariable String borrowerId) {
         bookService.returnBook(bookId, borrowerId);
         return new ResponseEntity<>(HttpStatus.OK);
