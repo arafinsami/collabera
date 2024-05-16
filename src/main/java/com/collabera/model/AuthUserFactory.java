@@ -11,9 +11,8 @@ public final class AuthUserFactory {
         return new AuthUser(
                 user.getId(),
                 user.getUsername(),
-                user.getFullName(),
+                user.getEmail(),
                 user.getPassword(),
-                user.getEnabled(),
-                user.getLastPasswordResetDate());
+                user.getEnabled());
     }
 }

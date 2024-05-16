@@ -10,7 +10,6 @@ import org.hibernate.annotations.GenericGenerator;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,21 +33,14 @@ public class AppUser implements Serializable {
 
     private String username;
 
-    private String fullName;
+    private String email;
 
     @JsonIgnore
     private String password;
 
     private Boolean enabled;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date lastPasswordResetDate;
-
     private Boolean approved;
-
-    private Boolean isTemporaryPassword;
-
-    private String passwordRecoveryCode;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "borrower_books",

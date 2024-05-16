@@ -1,26 +1,27 @@
 package com.collabera.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.ToString;
 
 @Data
-public class BookDTO {
+@ToString
+public class AppUserDTO {
 
     private String id;
 
     @NotNull
     @NotBlank
-    private String isbn;
+    private String username;
+
+    @Email
+    @NotNull
+    @NotBlank
+    private String email;
 
     @NotNull
     @NotBlank
-    private String title;
-
-    @NotNull
-    @NotBlank
-    private String author;
-
-    @NotNull
-    private Integer quantity;
+    private String password;
 }

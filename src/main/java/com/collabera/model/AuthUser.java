@@ -17,27 +17,23 @@ public class AuthUser implements UserDetails {
 
     private final String username;
 
-    private final String fullName;
+    private final String email;
 
     private final String password;
 
     private final boolean enabled;
 
-    private final Date lastPasswordResetDate;
-
     public AuthUser(
             String id,
             String username,
-            String fullName,
+            String email,
             String password,
-            boolean enabled,
-            Date lastPasswordResetDate) {
+            boolean enabled) {
         this.id = id;
         this.username = username;
-        this.fullName = fullName;
+        this.email = email;
         this.password = password;
         this.enabled = enabled;
-        this.lastPasswordResetDate = lastPasswordResetDate;
     }
 
     @JsonIgnore
@@ -68,10 +64,9 @@ public class AuthUser implements UserDetails {
         return true;
     }
 
-    public String getFullName() {
-        return fullName;
+    public String getEmail() {
+        return email;
     }
-
 
     @JsonIgnore
     @Override
@@ -87,10 +82,5 @@ public class AuthUser implements UserDetails {
     @Override
     public boolean isEnabled() {
         return enabled;
-    }
-
-    @JsonIgnore
-    public Date getLastPasswordResetDate() {
-        return lastPasswordResetDate;
     }
 }

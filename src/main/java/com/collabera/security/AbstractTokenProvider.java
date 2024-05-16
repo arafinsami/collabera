@@ -74,8 +74,4 @@ public abstract class AbstractTokenProvider {
         }
         return null;
     }
-
-    public Boolean isCreatedBeforeLastPasswordReset(Date created, Date lastPasswordReset) {
-        return (nonNull(lastPasswordReset) && created.before(lastPasswordReset));
-    }
 }

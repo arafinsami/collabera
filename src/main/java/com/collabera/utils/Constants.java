@@ -8,6 +8,7 @@ public final class Constants {
 
     public static final String[] PUBLIC_MATECHERS = {
             "/setup",
+            "/user/register",
             "/login",
             "/myget",
             "/v2/api-docs",

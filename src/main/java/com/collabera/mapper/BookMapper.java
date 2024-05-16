@@ -2,18 +2,25 @@ package com.collabera.mapper;
 
 import com.collabera.dto.BookDTO;
 import com.collabera.entity.Book;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.factory.Mappers;
+import org.springframework.stereotype.Component;
 
-@Mapper
-public interface BookMapper {
+@Component
+public class BookMapper {
 
-    BookMapper INSTANCE = Mappers.getMapper(BookMapper.class);
+    public Book save(BookDTO request) {
+        Book book = new Book();
+        book.setTitle(request.getTitle());
+        book.setAuthor(request.getAuthor());
+        book.setQuantity(request.getQuantity());
+        return book;
+    }
 
-    Book save(BookDTO dto);
-
-    void update(BookDTO dto, @MappingTarget Book book);
-
-    BookDTO from(Book book);
+    public BookDTO from(Book book) {
+        BookDTO dto = new BookDTO();
+        dto.setId(book.getId());
+        dto.setTitle(book.getTitle());
+        dto.setAuthor(book.getAuthor());
+        dto.setQuantity(book.getQuantity());
+        return dto;
+    }
 }

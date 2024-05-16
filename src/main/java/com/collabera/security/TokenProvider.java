@@ -38,8 +38,7 @@ public class TokenProvider extends AbstractTokenProvider {
             AuthUser user = (AuthUser) userDetails;
             final String username = getUsernameFromToken(token);
             final Date created = getCreatedDateFromToken(token);
-            return (username.equals(user.getUsername()) && !isTokenExpired(token)
-                    && !isCreatedBeforeLastPasswordReset(created, user.getLastPasswordResetDate()));
+            return (username.equals(user.getUsername()) && !isTokenExpired(token));
         }
         return null;
     }

@@ -24,6 +24,8 @@ public class BookService {
 
     private final BookRepository bookRepository;
 
+    private final BookMapper bookMapper;
+
     private final AppUserRepository appUserRepository;
 
     @Transactional
@@ -35,7 +37,7 @@ public class BookService {
                 return bookRepository.save(existingBook);
             }
         }
-        Book book = BookMapper.INSTANCE.save(request);
+        Book book = bookMapper.save(request);
         log.info("book saved : {} ", toJson(book));
         return bookRepository.save(book);
     }
@@ -77,7 +79,6 @@ public class BookService {
     public void returnBook(String bookId, String borrowerId) {
         Optional<Book> bookOptional = bookRepository.findById(bookId);
         Optional<AppUser> borrowerOptional = appUserRepository.findById(borrowerId);
-
         if (bookOptional.isPresent() && borrowerOptional.isPresent()) {
             Book book = bookOptional.get();
             AppUser borrower = borrowerOptional.get();

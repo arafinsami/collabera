@@ -18,7 +18,7 @@ public class BookValidator implements Validator {
 
     @Override
     public boolean supports(Class<?> clazz) {
-        return BookDTO.class.equals(clazz);
+        return BookDTO.class.isAssignableFrom(clazz);
     }
 
     @Override

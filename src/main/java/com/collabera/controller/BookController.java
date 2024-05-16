@@ -6,6 +6,7 @@ import com.collabera.mapper.BookMapper;
 import com.collabera.service.BookService;
 import com.collabera.validators.BookValidator;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,19 +26,22 @@ import static org.springframework.http.ResponseEntity.badRequest;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "Bool API")
 @RequestMapping(path = "book")
 public class BookController {
 
     private final BookService bookService;
+
+    private final BookMapper bookMapper;
 
     private final BookValidator validator;
 
     @GetMapping("/{id}")
     @Operation(summary = "get book by id")
     public ResponseEntity<JSONObject> findById(@PathVariable("id") String id) {
-        Book account = bookService.findById(id);
-        log.info("get book by id: {}, response: {} ", id, toJson(account));
-        BookDTO dto = BookMapper.INSTANCE.from(account);
+        Book book = bookService.findById(id);
+        log.info("get book by id: {}, response: {} ", id, toJson(book));
+        BookDTO dto = bookMapper.from(book);
         return new ResponseEntity<>(success(dto).getJson(), HttpStatus.OK);
     }
 
@@ -51,21 +55,21 @@ public class BookController {
         }
         Book book = bookService.save(request);
         log.info("book save response: {} ", toJson(book));
-        BookDTO dto = BookMapper.INSTANCE.from(book);
+        BookDTO dto = bookMapper.from(book);
         return new ResponseEntity<>(success(dto).getJson(), HttpStatus.CREATED);
     }
 
     @PostMapping("/borrow/{bookId}/{borrowerId}")
     @Operation(summary = "borrow book by book id and borrower id")
-    public ResponseEntity<Void> borrowBook(@PathVariable String bookId, @PathVariable String borrowerId) {
+    public ResponseEntity<JSONObject> borrowBook(@PathVariable String bookId, @PathVariable String borrowerId) {
         bookService.borrowBook(bookId, borrowerId);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(success("Book borrowed successfully with bookId: " + bookId + " borrowerId: " + borrowerId).getJson());
     }
 
     @PostMapping("/return/{bookId}/{borrowerId}")
     @Operation(summary = "return book by book id and borrower id")
-    public ResponseEntity<Void> returnBook(@PathVariable String bookId, @PathVariable String borrowerId) {
+    public ResponseEntity<JSONObject> returnBook(@PathVariable String bookId, @PathVariable String borrowerId) {
         bookService.returnBook(bookId, borrowerId);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(success("Book returned successfully with bookId: " + bookId + " and borrowerId: " + borrowerId).getJson());
     }
 }
