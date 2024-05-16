@@ -1,8 +1,10 @@
 package com.collabera.controller;
 
 import com.collabera.dto.BookDTO;
+import com.collabera.entity.AppUser;
 import com.collabera.entity.Book;
 import com.collabera.mapper.BookMapper;
+import com.collabera.security.ActiveUserContext;
 import com.collabera.service.BookService;
 import com.collabera.validators.BookValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,6 +38,9 @@ public class BookControllerTest {
 
     @InjectMocks
     private BookController bookController;
+
+    @Mock
+    private ActiveUserContext context;
 
     private MockMvc mockMvc;
 
@@ -81,9 +86,11 @@ public class BookControllerTest {
     @Test
     public void testBorrowBook_ValidInput() throws Exception {
         String bookId = "bookId";
-        String borrowerId = "borrowerId";
-        doNothing().when(bookService).borrowBook(bookId, borrowerId);
-        mockMvc.perform(post("/book/borrow/{bookId}/{borrowerId}", bookId, borrowerId)
+        AppUser mockAppUser = new AppUser();
+        mockAppUser.setUsername("username");
+        when(context.getLoggedInUser()).thenReturn(mockAppUser);
+        doNothing().when(bookService).borrowBook(bookId, mockAppUser);
+        mockMvc.perform(post("/book/borrow/{bookId}", bookId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -91,8 +98,6 @@ public class BookControllerTest {
                         .value(
                                 "Book borrowed successfully with bookId: "
                                         + bookId
-                                        + " borrowerId: "
-                                        + borrowerId
                         )
                 );
     }
@@ -100,9 +105,11 @@ public class BookControllerTest {
     @Test
     public void testReturnBook_ValidInput() throws Exception {
         String bookId = "bookId";
-        String borrowerId = "borrowerId";
-        doNothing().when(bookService).returnBook(bookId, borrowerId);
-        mockMvc.perform(post("/book/return/{bookId}/{borrowerId}", bookId, borrowerId)
+        AppUser mockAppUser = new AppUser();
+        mockAppUser.setUsername("username");
+        when(context.getLoggedInUser()).thenReturn(mockAppUser);
+        doNothing().when(bookService).returnBook(bookId, mockAppUser);
+        mockMvc.perform(post("/book/return/{bookId}", bookId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -110,8 +117,6 @@ public class BookControllerTest {
                         .value(
                                 "Book returned successfully with bookId: "
                                         + bookId
-                                        + " and borrowerId: "
-                                        + borrowerId
                         )
                 );
     }

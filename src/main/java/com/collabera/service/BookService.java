@@ -57,9 +57,9 @@ public class BookService {
         return bookRepository.findByIsbn(isbn);
     }
 
-    public void borrowBook(String bookId, String borrowerId) {
+    public void borrowBook(String bookId, AppUser user) {
         Optional<Book> bookOptional = bookRepository.findById(bookId);
-        Optional<AppUser> borrowerOptional = appUserRepository.findById(borrowerId);
+        Optional<AppUser> borrowerOptional = appUserRepository.findById(user.getId());
         if (bookOptional.isPresent() && borrowerOptional.isPresent()) {
             Book book = bookOptional.get();
             AppUser borrower = borrowerOptional.get();
@@ -76,9 +76,9 @@ public class BookService {
         }
     }
 
-    public void returnBook(String bookId, String borrowerId) {
+    public void returnBook(String bookId, AppUser user) {
         Optional<Book> bookOptional = bookRepository.findById(bookId);
-        Optional<AppUser> borrowerOptional = appUserRepository.findById(borrowerId);
+        Optional<AppUser> borrowerOptional = appUserRepository.findById(user.getId());
         if (bookOptional.isPresent() && borrowerOptional.isPresent()) {
             Book book = bookOptional.get();
             AppUser borrower = borrowerOptional.get();

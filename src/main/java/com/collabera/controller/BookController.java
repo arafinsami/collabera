@@ -1,8 +1,10 @@
 package com.collabera.controller;
 
 import com.collabera.dto.BookDTO;
+import com.collabera.entity.AppUser;
 import com.collabera.entity.Book;
 import com.collabera.mapper.BookMapper;
+import com.collabera.security.ActiveUserContext;
 import com.collabera.service.BookService;
 import com.collabera.validators.BookValidator;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,6 +36,8 @@ public class BookController {
 
     private final BookMapper bookMapper;
 
+    private final ActiveUserContext context;
+
     private final BookValidator validator;
 
     @GetMapping("/{id}")
@@ -59,17 +63,19 @@ public class BookController {
         return new ResponseEntity<>(success(dto).getJson(), HttpStatus.CREATED);
     }
 
-    @PostMapping("/borrow/{bookId}/{borrowerId}")
+    @PostMapping("/borrow/{bookId}")
     @Operation(summary = "borrow book by book id and borrower id")
-    public ResponseEntity<JSONObject> borrowBook(@PathVariable String bookId, @PathVariable String borrowerId) {
-        bookService.borrowBook(bookId, borrowerId);
-        return ResponseEntity.ok(success("Book borrowed successfully with bookId: " + bookId + " borrowerId: " + borrowerId).getJson());
+    public ResponseEntity<JSONObject> borrowBook(@PathVariable String bookId) {
+        AppUser appUser = context.getLoggedInUser();
+        bookService.borrowBook(bookId, appUser);
+        return ResponseEntity.ok(success("Book borrowed successfully with bookId: " + bookId).getJson());
     }
 
-    @PostMapping("/return/{bookId}/{borrowerId}")
+    @PostMapping("/return/{bookId}")
     @Operation(summary = "return book by book id and borrower id")
-    public ResponseEntity<JSONObject> returnBook(@PathVariable String bookId, @PathVariable String borrowerId) {
-        bookService.returnBook(bookId, borrowerId);
-        return ResponseEntity.ok(success("Book returned successfully with bookId: " + bookId + " and borrowerId: " + borrowerId).getJson());
+    public ResponseEntity<JSONObject> returnBook(@PathVariable String bookId) {
+        AppUser appUser = context.getLoggedInUser();
+        bookService.returnBook(bookId, appUser);
+        return ResponseEntity.ok(success("Book returned successfully with bookId: " + bookId).getJson());
     }
 }
