@@ -6,7 +6,6 @@ import com.collabera.mapper.UserMapper;
 import com.collabera.repository.AppUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,13 +20,9 @@ public class AppUserService {
 
     private final UserMapper mapper;
 
-    private final PasswordEncoder passwordEncoder;
-
     @Transactional
     public AppUser save(AppUserDTO request) {
         AppUser appUser = mapper.save(request);
-        appUser.setPassword(passwordEncoder.encode(request.getPassword()));
-        appUser.setEnabled(true);
         appUserRepository.save(appUser);
         return appUser;
     }

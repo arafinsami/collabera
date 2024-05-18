@@ -8,7 +8,6 @@ import org.json.simple.JSONObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -25,17 +24,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({ResourceNotFoundException.class})
     public ResponseEntity<JSONObject> handleResourceNotFoundExceptions(Exception ex) {
         return new ResponseEntity<>(error((ex.getMessage() + " " + Constants.RESOURCE_NOT_FOUND)).getJson(), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<JSONObject> handleAuthenticationException(AuthenticationException ex, WebRequest request) {
-        return new ResponseEntity<>(error((
-                handleExceptionInternal(
-                        ex,
-                        "invalid username/password",
-                        new HttpHeaders(),
-                        HttpStatus.UNAUTHORIZED, request))).getJson(),
-                HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(value = {ConstraintViolationException.class})

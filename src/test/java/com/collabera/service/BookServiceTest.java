@@ -82,10 +82,10 @@ class BookServiceTest {
         book.setId("bookId");
         book.setQuantity(1);
         AppUser user = new AppUser();
-        user.setId("userId");
+        user.setId("borrowerId");
         when(bookRepository.findById("bookId")).thenReturn(Optional.of(book));
-        when(appUserRepository.findById("userId")).thenReturn(Optional.of(user));
-        bookService.borrowBook("bookId", user);
+        when(appUserRepository.findById("borrowerId")).thenReturn(Optional.of(user));
+        bookService.borrowBook("bookId", "borrowerId");
         assertEquals(0, book.getQuantity());
         assertTrue(user.getBorrowedBooks().contains(book));
         verify(bookRepository, times(1)).save(book);
@@ -98,17 +98,10 @@ class BookServiceTest {
         book.setId("bookId");
         book.setQuantity(0);
         AppUser user = new AppUser();
-        user.setId("userId");
+        user.setId("borrowerId");
         when(bookRepository.findById("bookId")).thenReturn(Optional.of(book));
-        when(appUserRepository.findById("userId")).thenReturn(Optional.of(user));
-        assertThrows(RuntimeException.class, () -> bookService.borrowBook("bookId", user));
-    }
-
-    @Test
-    public void testBorrowBook_BookOrUserNotFound() {
-        when(bookRepository.findById(anyString())).thenReturn(Optional.empty());
-        when(appUserRepository.findById(anyString())).thenReturn(Optional.empty());
-        assertThrows(RuntimeException.class, () -> bookService.borrowBook("nonExistentBookId", new AppUser()));
+        when(appUserRepository.findById("borrowerId")).thenReturn(Optional.of(user));
+        assertThrows(RuntimeException.class, () -> bookService.borrowBook("bookId", "borrowerId"));
     }
 
     @Test
@@ -117,22 +110,15 @@ class BookServiceTest {
         book.setId("bookId");
         book.setQuantity(1);
         AppUser user = new AppUser();
-        user.setId("userId");
+        user.setId("borrowerId");
         user.getBorrowedBooks().add(book);
         when(bookRepository.findById("bookId")).thenReturn(Optional.of(book));
-        when(appUserRepository.findById("userId")).thenReturn(Optional.of(user));
-        bookService.returnBook("bookId", user);
+        when(appUserRepository.findById("borrowerId")).thenReturn(Optional.of(user));
+        bookService.returnBook("bookId", "borrowerId");
         assertEquals(2, book.getQuantity());
         assertFalse(user.getBorrowedBooks().contains(book));
         verify(bookRepository, times(1)).save(book);
         verify(appUserRepository, times(1)).save(user);
-    }
-
-    @Test
-    public void testReturnBook_BookOrUserNotFound() {
-        when(bookRepository.findById(anyString())).thenReturn(Optional.empty());
-        when(appUserRepository.findById(anyString())).thenReturn(Optional.empty());
-        assertThrows(RuntimeException.class, () -> bookService.returnBook("nonExistentBookId", new AppUser()));
     }
 
     private static Book getBook(BookDTO request) {

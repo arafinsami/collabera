@@ -1,6 +1,5 @@
 package com.collabera.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,6 +17,7 @@ import java.util.Set;
 @DynamicUpdate
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "borrower")
 public class AppUser implements Serializable {
 
     @Serial
@@ -35,12 +35,9 @@ public class AppUser implements Serializable {
 
     private String email;
 
-    @JsonIgnore
-    private String password;
+    private Integer borrowedQuantity;
 
-    private Boolean enabled;
-
-    private Boolean approved;
+    private Boolean isActiveBorrowed;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "borrower_books",

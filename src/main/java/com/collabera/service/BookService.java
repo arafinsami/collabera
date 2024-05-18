@@ -9,11 +9,13 @@ import com.collabera.repository.AppUserRepository;
 import com.collabera.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.collabera.utils.StringUtils.toJson;
 
@@ -30,16 +32,18 @@ public class BookService {
 
     @Transactional
     public Book save(BookDTO request) {
-        List<Book> existingBooks = bookRepository.findByIsbn(request.getIsbn());
-        for (Book existingBook : existingBooks) {
-            if (existingBook.getTitle().equals(request.getTitle()) && existingBook.getAuthor().equals(request.getAuthor())) {
-                existingBook.setQuantity(existingBook.getQuantity() + 1);
-                return bookRepository.save(existingBook);
-            }
-        }
-        Book book = bookMapper.save(request);
-        log.info("book saved : {} ", toJson(book));
-        return bookRepository.save(book);
+        return bookRepository.findByIsbn(request.getIsbn()).stream()
+                .filter(book -> book.getTitle().equals(request.getTitle()) && book.getAuthor().equals(request.getAuthor()))
+                .findFirst()
+                .map(book -> {
+                    book.setQuantity(book.getQuantity() + request.getQuantity());
+                    return bookRepository.save(book);
+                })
+                .orElseGet(() -> {
+                    Book newBook = bookMapper.save(request);
+                    log.info("book saved : {} ", toJson(newBook));
+                    return bookRepository.save(newBook);
+                });
     }
 
     @Transactional(readOnly = true)
@@ -57,37 +61,41 @@ public class BookService {
         return bookRepository.findByIsbn(isbn);
     }
 
-    public void borrowBook(String bookId, AppUser user) {
-        Optional<Book> bookOptional = bookRepository.findById(bookId);
-        Optional<AppUser> borrowerOptional = appUserRepository.findById(user.getId());
-        if (bookOptional.isPresent() && borrowerOptional.isPresent()) {
-            Book book = bookOptional.get();
-            AppUser borrower = borrowerOptional.get();
-            if (book.getQuantity() > 0) {
-                book.setQuantity(book.getQuantity() - 1);
-                bookRepository.save(book);
-                borrower.getBorrowedBooks().add(book);
-                appUserRepository.save(borrower);
-            } else {
-                throw new RuntimeException("Book with id " + bookId + " is not available for borrowing.");
-            }
+    @Transactional
+    public void borrowBook(String bookId, String borrowerId) {
+        Book book = bookRepository.findById(bookId).orElseThrow(
+                () -> new RuntimeException("Book with id " + bookId + " not found.")
+        );
+        AppUser borrower = appUserRepository.findById(borrowerId).orElseThrow(
+                () -> new RuntimeException("Borrower not found.")
+        );
+        if (book.getQuantity() > 0) {
+            book.setQuantity(book.getQuantity() - 1);
+            bookRepository.save(book);
+            borrower.getBorrowedBooks().add(book);
+            appUserRepository.save(borrower);
         } else {
-            throw new RuntimeException("Book or Borrower not found.");
+            throw new RuntimeException("Book with id " + bookId + " is not available for borrowing.");
         }
     }
 
-    public void returnBook(String bookId, AppUser user) {
-        Optional<Book> bookOptional = bookRepository.findById(bookId);
-        Optional<AppUser> borrowerOptional = appUserRepository.findById(user.getId());
-        if (bookOptional.isPresent() && borrowerOptional.isPresent()) {
-            Book book = bookOptional.get();
-            AppUser borrower = borrowerOptional.get();
-            borrower.getBorrowedBooks().remove(book);
-            appUserRepository.save(borrower);
-            book.setQuantity(book.getQuantity() + 1);
-            bookRepository.save(book);
-        } else {
-            throw new RuntimeException("Book or Borrower not found.");
-        }
+    @Transactional
+    public void returnBook(String bookId, String borrowerId) {
+        Book book = bookRepository.findById(bookId).orElseThrow(
+                () -> new RuntimeException("Book with id " + bookId + " not found.")
+        );
+        AppUser borrower = appUserRepository.findById(borrowerId).orElseThrow(
+                () -> new RuntimeException("Borrower not found.")
+        );
+        borrower.getBorrowedBooks().remove(book);
+        appUserRepository.save(borrower);
+        book.setQuantity(book.getQuantity() + 1);
+        bookRepository.save(book);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Book> findAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return bookRepository.findAll(pageable);
     }
 }

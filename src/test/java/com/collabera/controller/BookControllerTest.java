@@ -3,8 +3,8 @@ package com.collabera.controller;
 import com.collabera.dto.BookDTO;
 import com.collabera.entity.AppUser;
 import com.collabera.entity.Book;
+import com.collabera.helper.BookHelper;
 import com.collabera.mapper.BookMapper;
-import com.collabera.security.ActiveUserContext;
 import com.collabera.service.BookService;
 import com.collabera.validators.BookValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,7 +40,7 @@ public class BookControllerTest {
     private BookController bookController;
 
     @Mock
-    private ActiveUserContext context;
+    private BookHelper bookHelper;
 
     private MockMvc mockMvc;
 
@@ -86,11 +86,11 @@ public class BookControllerTest {
     @Test
     public void testBorrowBook_ValidInput() throws Exception {
         String bookId = "bookId";
+        String borrowerId = "borrowerId";
         AppUser mockAppUser = new AppUser();
         mockAppUser.setUsername("username");
-        when(context.getLoggedInUser()).thenReturn(mockAppUser);
-        doNothing().when(bookService).borrowBook(bookId, mockAppUser);
-        mockMvc.perform(post("/book/borrow/{bookId}", bookId)
+        doNothing().when(bookService).borrowBook(bookId, borrowerId);
+        mockMvc.perform(post("/book/borrow/{bookId}/{borrowerId}", bookId, borrowerId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -105,11 +105,11 @@ public class BookControllerTest {
     @Test
     public void testReturnBook_ValidInput() throws Exception {
         String bookId = "bookId";
+        String borrowerId = "borrowerId";
         AppUser mockAppUser = new AppUser();
         mockAppUser.setUsername("username");
-        when(context.getLoggedInUser()).thenReturn(mockAppUser);
-        doNothing().when(bookService).returnBook(bookId, mockAppUser);
-        mockMvc.perform(post("/book/return/{bookId}", bookId)
+        doNothing().when(bookService).returnBook(bookId, borrowerId);
+        mockMvc.perform(post("/book/return/{bookId}/{borrowerId}", bookId, borrowerId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -119,6 +119,14 @@ public class BookControllerTest {
                                         + bookId
                         )
                 );
+    }
+
+    @Test
+    public void testGetBooksCustomPagination() throws Exception {
+        mockMvc.perform(get("/book/books")
+                        .param("page", "1")
+                        .param("size", "10"))
+                .andExpect(status().isOk());
     }
 
     private static BookDTO getBookDTO(String bookId) {
